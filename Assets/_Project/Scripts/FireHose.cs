@@ -27,10 +27,17 @@ public class FireHose : MonoBehaviour
 
     public Image crosshairUI;
 
+    public AudioSource fireSound;
+
 
     private void Start()
     {
         ChallengeManager.instance.challengeComplete.AddListener(OnEndChallenge);
+    }
+
+    private void OnEnable()
+    {
+        fireSound.volume = 1;
     }
 
     void Update()
@@ -50,9 +57,12 @@ public class FireHose : MonoBehaviour
         {
             if(ChallengeManager.instance.currentActiveTool == ChallengeManager.Tool.FireHose)
             {
+                hoseRootJoint.GetComponent<AudioSource>().Play();
+
                 if (isFireCrosshairGood)
                 {
                     ChallengeManager.instance.PutOutRandomFire();
+                    fireSound.volume -= 0.2f;
                 }
                 else
                 {
@@ -61,16 +71,24 @@ public class FireHose : MonoBehaviour
             }
             else if(ChallengeManager.instance.currentActiveTool == ChallengeManager.Tool.FeedingBottle)
             {
+                // NO audio
+                //bottleTransform.GetComponent<AudioSource>().Play(); 
+
                 if (isBottleCrosshairGood)
+                {
                     ChallengeManager.instance.FeedKoala();
+                }
                 else
                     ChallengeManager.instance.MisClickFirehose();
             }
 
             if(ChallengeManager.instance.currentActiveTool == ChallengeManager.Tool.SeedBag)
             {
+                seedPacketTransform.GetComponent<AudioSource>().Play();
                 if (isSeedCrosshairGood)
+                {
                     ChallengeManager.instance.PlantSeed();
+                }
                 else
                     ChallengeManager.instance.MisclickSeed();
             }

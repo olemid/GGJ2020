@@ -19,6 +19,7 @@ public class KoalaManager : MonoBehaviour
     {
         isFed = true;
         bottle.SetActive(true);
+        GetComponent<AudioSource>().Play();
     }
 
     public void ResetKoala()
@@ -26,5 +27,6 @@ public class KoalaManager : MonoBehaviour
         print("Reset koala");
         isFed = false;
         bottle.SetActive(false);
+        GetComponent<AudioSource>().Stop();
     }
 }
