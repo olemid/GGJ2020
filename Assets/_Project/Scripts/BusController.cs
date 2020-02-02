@@ -50,9 +50,9 @@ public class BusController : MonoBehaviour
 
         // flip sprite according to direction
         if (moveAxis.x > 0)
-            sprite.flipX = true;
-        else if(moveAxis.x < 0)
             sprite.flipX = false;
+        else if(moveAxis.x < 0)
+            sprite.flipX = true;
 
         // spawn footprint
         if(Vector3.Distance(transform.position, lastFootprintPosition) >= footprintDistanceThreshold)
