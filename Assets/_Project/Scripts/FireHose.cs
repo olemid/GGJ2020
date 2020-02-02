@@ -12,12 +12,18 @@ public class FireHose : MonoBehaviour
     public ParticleSystem water;
     public float waterSpawnRate = 64;
 
+    public ParticleSystem seeds;
+    public float seedSpawnRate = 16;
+
     public Transform hoseRootJoint;
 
     public Transform bottleTransform;
 
+    public Transform seedPacketTransform;
+
     bool isFireCrosshairGood = false;
     bool isBottleCrosshairGood = false;
+    bool isSeedCrosshairGood = false;
 
     public Image crosshairUI;
 
@@ -61,9 +67,15 @@ public class FireHose : MonoBehaviour
                     ChallengeManager.instance.MisClickFirehose();
             }
 
+            if(ChallengeManager.instance.currentActiveTool == ChallengeManager.Tool.SeedBag)
+            {
+                if (isSeedCrosshairGood)
+                    ChallengeManager.instance.PlantSeed();
+                else
+                    ChallengeManager.instance.MisclickSeed();
+            }
 
 
-            
         }
 
         if (ChallengeManager.instance.currentActiveTool == ChallengeManager.Tool.FireHose)
@@ -88,10 +100,23 @@ public class FireHose : MonoBehaviour
         {
             bottleTransform.localPosition = new Vector3(Mathf.Lerp(-0.95f, 0.95f, t), bottleTransform.localPosition.y, bottleTransform.localPosition.z);
             bottleTransform.localEulerAngles = new Vector3(bottleTransform.localEulerAngles.x, Mathf.Lerp(-30, 30, t), 0);
+
+
         }
         else if(ChallengeManager.instance.currentActiveTool == ChallengeManager.Tool.SeedBag)
         {
-            //TODO
+            seedPacketTransform.localPosition = new Vector3(Mathf.Lerp(-0.95f, 0.95f, t), seedPacketTransform.localPosition.y, seedPacketTransform.localPosition.z);
+            seedPacketTransform.localEulerAngles = new Vector3(seedPacketTransform.localEulerAngles.x, Mathf.Lerp(-35, 35, t), 0);
+
+            var seedEmission = seeds.emission;
+            if (Input.GetKey(KeyCode.Space))
+            {
+                seedEmission.rateOverTime = seedSpawnRate;
+            }
+            else
+            {
+                seedEmission.rateOverTime = 0f;
+            }
         }
     }
 
@@ -121,6 +146,8 @@ public class FireHose : MonoBehaviour
             isFireCrosshairGood = true;
         else if (other.GetComponent<ToolTrigger>().toolType == ChallengeManager.Tool.FeedingBottle)
             isBottleCrosshairGood = true;
+        else if (other.GetComponent<ToolTrigger>().toolType == ChallengeManager.Tool.SeedBag)
+            isSeedCrosshairGood = true;
     }
 
     private void OnTriggerExit(Collider other)
@@ -129,12 +156,14 @@ public class FireHose : MonoBehaviour
             isFireCrosshairGood = false;
         else if (other.GetComponent<ToolTrigger>().toolType == ChallengeManager.Tool.FeedingBottle)
             isBottleCrosshairGood = false;
+        else if (other.GetComponent<ToolTrigger>().toolType == ChallengeManager.Tool.SeedBag)
+            isSeedCrosshairGood = false;
     }
 
     // TODO this does not stop the water
     void OnEndChallenge()
     {
-        var waterEmission = water.emission;
+        var waterEmission = water.emission; 
         waterEmission.rateOverTime = 0f;
     }
 }

@@ -34,6 +34,14 @@ public class ChallengeManager : MonoBehaviour
     public List<Collider> koalaHitBoxes;
 
     bool isKoalaFed = false;
+
+    [Header("Seeds")]
+    public GameObject[] seedObjectsToToggle;
+    Transform activeSeedPile;
+    public List<SeedManager> seedPiles;
+    public List<Collider> seedHitBoxes;
+
+    bool isSeedPlanted = false;
    
 
     [Header("Shared")]
@@ -114,6 +122,28 @@ public class ChallengeManager : MonoBehaviour
             activeKoala = null;
         }
 
+        // activate seeds
+        if(Levels.instance.currentLevel >= 0)
+        {
+            index = Random.Range(0, seedPiles.Count);
+
+            for (int i = 0; i < seedPiles.Count; i++)
+            {
+                seedPiles[i].gameObject.SetActive(i == index);
+                seedHitBoxes[i].gameObject.SetActive(i == index);
+
+                seedPiles[i].ResetSeed();
+
+                if (i == index)
+                    activeSeedPile = seedPiles[i].transform;
+            }
+            isSeedPlanted = false;
+        }
+        else
+        {
+            activeSeedPile = null;
+        }
+
         challengeTimer = 0;
         firePoints = 0;
 
@@ -184,6 +214,9 @@ public class ChallengeManager : MonoBehaviour
 
         foreach (GameObject go in koalaObjectsToToggle)
             go.SetActive(index == 2);
+
+        foreach (GameObject go in seedObjectsToToggle)
+            go.SetActive(index == 3);
     }
 
 
@@ -215,6 +248,9 @@ public class ChallengeManager : MonoBehaviour
     //TODO make it actually random
     public void PutOutRandomFire()
     {
+        if (activeTree.GetChild(firePoints).gameObject == null)
+            return;
+
         activeTree.GetChild(firePoints).gameObject.SetActive(false);
 
         waterSlider.value -= 1f / amountOfWaterSquirts;
@@ -241,7 +277,6 @@ public class ChallengeManager : MonoBehaviour
 
     public void FeedKoala()
     {
-        print("Feed Koala");
         activeKoala.GetComponent<KoalaManager>().StartFeeding();
         isKoalaFed = true;
 
@@ -249,6 +284,20 @@ public class ChallengeManager : MonoBehaviour
     }
 
     public void MisclickKoala()
+    {
+        checkHasLost();
+    }
+
+    public void PlantSeed()
+    {
+        print("PLANT SEED");
+        activeSeedPile.GetComponent<SeedManager>().PlantSeed();
+        isSeedPlanted = true;
+
+        CheckHasWon();
+    }
+
+    public void MisclickSeed()
     {
         checkHasLost();
     }
@@ -290,8 +339,12 @@ public class ChallengeManager : MonoBehaviour
         {
             if(activeKoala == null || (activeKoala != null && isKoalaFed))
             {
-                WinChallenge();
-                return true;
+                if(activeSeedPile == null || (activeSeedPile != null && isSeedPlanted))
+                {
+                    print(activeTree + " - " + activeKoala + " - " + activeSeedPile);
+                    WinChallenge();
+                    return true;
+                }
             }
         }
         return false;
